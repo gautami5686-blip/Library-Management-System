@@ -57,7 +57,7 @@ $errorMessage = flash('error');
             </div>
         <?php endif; ?>
         <h1>Elevate Your Reading Experience</h1>
-        <p>A sophisticated digital ecosystem designed to manage books, empower members, and streamline library operations with uncompromising elegance.</p>
+        <p>Your library is not just a place—it’s a gateway to endless possibilities.</p>
         <div class="hero-btns">
             <a href="<?= e(url('catalog.php')) ?>" class="btn-primary">Explore Catalog</a>
         </div>
