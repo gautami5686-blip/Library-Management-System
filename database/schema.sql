@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS student_table (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+
+
 CREATE TABLE IF NOT EXISTS books_table (
     id INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(180) NOT NULL,
@@ -29,6 +31,7 @@ CREATE TABLE IF NOT EXISTS books_table (
     ISBN VARCHAR(40) NOT NULL UNIQUE,
     Category VARCHAR(120) NOT NULL,
     Department VARCHAR(120) NOT NULL,
+    department_id INT NOT NULL,
     Description TEXT NULL,
     Cover_Image VARCHAR(255) NULL,
     Total_copies INT NOT NULL DEFAULT 1,
@@ -105,6 +108,23 @@ CREATE TABLE IF NOT EXISTS remember_tokens (
     INDEX idx_remember_user (user_type, user_id),
     INDEX idx_remember_expiry (expires_at)
 );
+
+CREATE TABLE departments (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(120) NOT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    PRIMARY KEY (id),
+    UNIQUE (name)
+);
+
+INSERT INTO departments (id, name, created_at) VALUES
+(1, 'Civil Engineering', '2026-03-30 13:36:15'),
+(2, 'Computer Science & Engineering', '2026-03-30 13:36:15'),
+(3, 'Electrical Engineering', '2026-03-30 13:36:15'),
+(4, 'General', '2026-03-30 13:36:15'),
+(5, 'Humanities', '2026-03-30 13:36:15'),
+(6, 'Mechanical Engineering', '2026-03-30 13:36:15');
 
 INSERT INTO admins (name, email, password)
 SELECT 'Library Admin', 'admin@lms.com', '$2y$12$mkQ9bGIeavKGbWLs4Q3tJe2hRyCHx3BSnbvlcSdeboLr1V39EyZOG'
