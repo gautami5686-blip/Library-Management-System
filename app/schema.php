@@ -156,6 +156,14 @@ function schema_foreign_key_exists(string $table, string $constraint): bool
     ) > 0;
 }
 
+function schema_column_is_nullable(string $table, string $column): bool
+{
+    return strtoupper((string) db_value(
+        'SELECT IS_NULLABLE FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?',
+        [$table, $column]
+    )) === 'YES';
+}
+
 function seed_departments(): void
 {
     $departmentCount = (int) db_value('SELECT COUNT(*) FROM departments');
@@ -184,6 +192,14 @@ function ensure_department_relations(mysqli $db): void
     if (!schema_column_exists('books_table', 'department_id')) {
         $db->query('ALTER TABLE books_table ADD COLUMN department_id INT NULL AFTER Department');
         $bookDepartmentIdAdded = true;
+    }
+
+    if (!schema_column_is_nullable('student_table', 'department_id')) {
+        $db->query('ALTER TABLE student_table MODIFY COLUMN department_id INT NULL');
+    }
+
+    if (!schema_column_is_nullable('books_table', 'department_id')) {
+        $db->query('ALTER TABLE books_table MODIFY COLUMN department_id INT NULL');
     }
 
     if ($studentDepartmentIdAdded || $bookDepartmentIdAdded) {
