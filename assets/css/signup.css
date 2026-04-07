@@ -1,0 +1,266 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            /* Matching high-quality library background image */
+            background: url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070&auto=format&fit=crop') no-repeat center center/cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        /* Deep, rich overlay matching login page */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 31, 68, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: 1;
+        }
+
+        /* Glassmorphism Card Effect identical to login page */
+        .signup-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 760px;
+            padding: 24px 26px;
+            background: rgba(8, 20, 43, 0.58);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .logo-area h2 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .logo-area p {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        /* Form Grid Layout for a cleaner look */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px 16px;
+            margin-bottom: 14px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group-wide {
+            grid-column: 1 / -1;
+        }
+
+        /* Identical Input Styles to Login Page */
+        .input-group input, 
+        .input-group select {
+            width: 100%;
+            min-height: 52px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            appearance: none; 
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .input-group input.is-invalid {
+            border-color: #f87171;
+            background: rgba(248, 113, 113, 0.08);
+            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.12);
+        }
+
+        .field-hint {
+            display: block;
+            margin-top: 8px;
+            padding-left: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        .field-warning {
+            display: none;
+            margin-top: 8px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.28);
+            color: #fecaca;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .field-warning.is-visible {
+            display: block;
+        }
+
+        /* Custom Dropdown Arrow */
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper select {
+            padding-right: 62px;
+            background:
+                linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(255, 255, 255, 0.04));
+            border-color: rgba(212, 175, 55, 0.28);
+        }
+
+        .select-wrapper::after {
+            content: "";
+            position: absolute;
+            right: 18px;
+            top: 19px;
+            width: 12px;
+            height: 12px;
+            border-right: 2px solid #d4af37;
+            border-bottom: 2px solid #d4af37;
+            transform: rotate(45deg);
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .select-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            pointer-events: none;
+        }
+
+        .select-caption {
+            display: block;
+            margin-top: 8px;
+            padding-left: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        /* Styling the option tags for readability */
+        .input-group select option {
+            background-color: #0a1f44;
+            color: #fff;
+            padding: 10px;
+        }
+
+        /* Glowing effect on focus matching login page */
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #d4af37;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12), 0 14px 26px rgba(0, 0, 0, 0.16);
+        }
+
+        .input-group input::placeholder,
+        .input-group select:invalid {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Fix for date input placeholder color */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.6;
+            cursor: pointer;
+        }
+
+        /* Premium Button Identical to Login */
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa8715 100%);
+            color: #111;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+            margin-top: 2px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(212, 175, 55, 0.4);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+        }
+
+        .login-link a {
+            color: #fff;
+            font-weight: 500;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .login-link a:hover {
+            color: #d4af37;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 600px) {
+            .signup-container {
+                max-width: 460px;
+                padding: 22px 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+  
+@media (max-width: 520px) {
+    .signup-container {
+        padding: 20px 16px;
+    }
+
+    .logo-area h2 {
+        font-size: 24px;
+    }
+}
