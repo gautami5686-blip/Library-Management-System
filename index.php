@@ -57,7 +57,7 @@ $errorMessage = flash('error');
             </div>
         <?php endif; ?>
         <h1>Elevate Your Reading Experience</h1>
-        <p>A sophisticated digital ecosystem designed to manage books, empower members, and streamline library operations with uncompromising elegance.</p>
+        <p>Your library is not just a place—it’s a gateway to endless possibilities.</p>
         <div class="hero-btns">
             <a href="<?= e(url('catalog.php')) ?>" class="btn-primary">Explore Catalog</a>
         </div>
@@ -142,9 +142,9 @@ $errorMessage = flash('error');
             </div>
             <div class="footer-contact">
                 <h3>Contact Us</h3>
-                <p><i class="fas fa-envelope"></i> bipe@gmail.com</p>
-                <p><i class="fas fa-phone-alt"></i> +91 2234567654</p>
-                <p><i class="fas fa-map-marker-alt"></i> Gajokhar, Pindra, Varanasi, Uttar Pradesh, India</p>
+                <p><i class="fas fa-envelope"></i> bipevns@gmail.com</p>
+                <p><i class="fas fa-phone-alt"></i>+91-9198646464 | +91-9198767676</p>
+                <p><i class="fas fa-map-marker-alt"></i> Gajokhar, Phoolpur, Varanasi, Uttar Pradesh, India</p>
             </div>
         </div>
         <div class="footer-bottom">

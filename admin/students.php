@@ -13,6 +13,12 @@ if (is_post() && isset($_POST['update_limit'])) {
     redirect('admin/students.php');
 }
 
+if (is_post() && isset($_POST['delete_student'])) {
+    $result = delete_student_account((int) ($_POST['student_id'] ?? 0));
+    flash($result['success'] ? 'success' : 'error', $result['message']);
+    redirect('admin/students.php');
+}
+
 $students = db_all(
     "SELECT s.*, d.name AS Department,
             (SELECT COUNT(*) FROM issued_books ib WHERE ib.student_id = s.id AND ib.status IN ('active', 'overdue')) AS active_count,
@@ -71,14 +77,22 @@ $errorMessage = flash('error');
                             <th style="color:#94a3b8;">Active Books</th>
                             <th style="color:#94a3b8;">Unpaid Fines</th>
                             <th style="color:#94a3b8;">Borrow Limit</th>
+                            <th style="color:#94a3b8;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($students as $student): ?>
+                            <?php
+                            $displaySemester = (string) $student['Semester'];
+
+                            if (stripos((string) $student['Course'], 'diploma') !== false && $displaySemester === '4') {
+                                $displaySemester = '3';
+                            }
+                            ?>
                             <tr>
                                 <td style="color:#0f172a; font-weight:600;"><?= e($student['Name']) ?><br><span style="color:#94a3b8; font-size:12px;"><?= e($student['Email_Address']) ?></span></td>
                                 <td style="color:#334155;"><?= e($student['Department']) ?></td>
-                                <td style="color:#334155;"><?= e($student['Course']) ?> / <?= e($student['Semester']) ?></td>
+                                <td style="color:#334155;"><?= e($student['Course']) ?> / <?= e($displaySemester) ?></td>
                                 <td style="color:#334155;"><?= e((string) $student['active_count']) ?></td>
                                 <td style="color:#334155;"><?= e((string) $student['unpaid_fines']) ?></td>
                                 <td>
@@ -86,6 +100,14 @@ $errorMessage = flash('error');
                                         <input type="hidden" name="student_id" value="<?= (int) $student['id'] ?>">
                                         <input type="number" min="1" max="10" name="borrow_limit" value="<?= e((string) $student['No_Books_issued']) ?>" style="width:80px; padding:10px; border:1px solid #dbe3ee; border-radius:8px;">
                                         <button type="submit" name="update_limit" class="btn-gold" style="padding:10px 16px; background: linear-gradient(135deg, #c5a059, #a38244); color:#fff;">Save</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="POST" action="<?= e(url('admin/students.php')) ?>" onsubmit="return confirm('Delete this student account? Active and overdue book copies will be restored to inventory, and the student\\'s related history, fines, and requests will be removed.');">
+                                        <input type="hidden" name="student_id" value="<?= (int) $student['id'] ?>">
+                                        <button class="btn-icon delete" type="submit" name="delete_student" style="color:#ef4444; border-color:#e2e8f0;" title="Delete student">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </form>
                                 </td>
                             </tr>

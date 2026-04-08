@@ -8,9 +8,9 @@ $user = require_user();
 $activePage = 'profile';
 
 if (is_post() && isset($_POST['update_profile'])) {
-    $result = update_student_profile((int) $user['id'], $_POST);
+    $result = update_student_profile((int) $user['id'], $_POST, $_FILES);
     flash($result['success'] ? 'success' : 'error', $result['message']);
-    redirect('user_profile.php');
+    redirect('user_profile.php#profile-edit-form');
 }
 
 $user = require_user();
@@ -18,6 +18,7 @@ $successMessage = flash('success');
 $errorMessage = flash('error');
 $displayName = $user['Name'];
 $departments = departments_all();
+$profileImageUrl = student_profile_image_url($user);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,8 +45,12 @@ $departments = departments_all();
             <div class="profile-area">
                 <a href="<?= e(url('logout.php')) ?>" style="color: #E63946; font-size: 14px; font-weight: 600; margin-right: 20px; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <span style="color: var(--accent-gold); font-size: 15px; font-weight: 600; font-family: 'Playfair Display', serif;"><?= e($displayName) ?></span>
-                <div class="user-avatar" style="background: linear-gradient(135deg, var(--accent-gold), #AA8715); width: 45px; height: 45px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: #fff; font-weight: bold; margin-left: 12px; font-family: 'Playfair Display', serif; font-size: 20px;">
-                    <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                <div class="user-avatar" style="background: linear-gradient(135deg, var(--accent-gold), #AA8715); width: 45px; height: 45px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: #fff; font-weight: bold; margin-left: 12px; font-family: 'Playfair Display', serif; font-size: 20px; overflow:hidden;">
+                    <?php if ($profileImageUrl): ?>
+                        <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                    <?php else: ?>
+                        <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -65,8 +70,12 @@ $departments = departments_all();
 
         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items:start;">
             <div class="stat-card" style="display:block; padding: 40px 30px; text-align:center;">
-                <div style="width: 130px; height: 130px; background: linear-gradient(135deg, #ffffff, rgba(255,255,255,0.08)); color: var(--accent-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 52px; font-weight: 700; margin: 0 auto 20px auto; border: 2px solid rgba(212,175,55,0.4); font-family: 'Playfair Display', serif;">
-                    <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                <div class="profile-summary-avatar" style="width: 130px; height: 130px; margin: 0 auto 20px auto; background: linear-gradient(135deg, #ffffff, rgba(255,255,255,0.08)); color: var(--accent-gold); border: 2px solid rgba(212,175,55,0.4);">
+                    <?php if ($profileImageUrl): ?>
+                        <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                    <?php else: ?>
+                        <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                    <?php endif; ?>
                 </div>
                 <h3 style="margin: 0 0 8px 0; font-family: 'Playfair Display', serif; color: #fff; font-size: 28px;"><?= e($user['Name']) ?></h3>
                 <p style="margin: 0 0 25px 0; color: var(--text-muted); font-size: 14px;"><i class="fas fa-envelope" style="color: var(--accent-gold); margin-right: 5px;"></i> <?= e($user['Email_Address']) ?></p>
@@ -79,7 +88,30 @@ $departments = departments_all();
                 <h3 style="margin-top: 0; margin-bottom: 30px; font-family: 'Playfair Display', serif; color: #fff; font-size: 26px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px; display:flex; align-items:center; gap:12px;">
                     <i class="fas fa-address-card" style="color: var(--accent-gold);"></i> Academic Details
                 </h3>
-                <form method="POST" action="<?= e(url('user_profile.php')) ?>">
+                <form id="profile-edit-form" method="POST" action="<?= e(url('user_profile.php#profile-edit-form')) ?>" enctype="multipart/form-data">
+                    <div class="profile-photo-editor">
+                        <div class="profile-photo-frame">
+                            <?php if ($profileImageUrl): ?>
+                                <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                            <?php else: ?>
+                                <div class="profile-photo-placeholder"><?= e(strtoupper(substr($displayName, 0, 1))) ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="profile-upload-controls">
+                            <div class="profile-field">
+                                <label for="profile-page-image">Profile Image</label>
+                                <input id="profile-page-image" type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                            </div>
+                            <p class="profile-upload-hint">Upload JPG, PNG, or WEBP image. Maximum file size: 2 MB.</p>
+                            <?php if ($profileImageUrl): ?>
+                                <label class="profile-checkbox">
+                                    <input type="checkbox" name="remove_profile_image" value="1">
+                                    Remove current photo
+                                </label>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
                     <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
                         <div>
                             <label style="display:block; font-size: 11.5px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px;">Full Name</label>

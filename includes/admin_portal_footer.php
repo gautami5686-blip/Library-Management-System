@@ -18,9 +18,9 @@
         </div>
         <div class="site-footer-contact">
             <h3>Contact Us</h3>
-            <p><i class="fas fa-envelope"></i> bipe@gmail.com</p>
-            <p><i class="fas fa-phone-alt"></i> +91 2234567654</p>
-            <p><i class="fas fa-map-marker-alt"></i> Gajokhar, Pindra, Varanasi, Uttar Pradesh, India</p>
+            <p><i class="fas fa-envelope"></i> bipevns@gmail.com</p>
+            <p><i class="fas fa-phone-alt"></i>+91-9198646464 | +91-9198767676</p>
+            <p><i class="fas fa-map-marker-alt"></i> Gajokhar, Phoolpur, Varanasi, Uttar Pradesh, India</p>
         </div>
     </div>
     <div class="site-footer-bottom">
