@@ -21,6 +21,7 @@ $books = db_all(
 $successMessage = flash('success');
 $errorMessage = flash('error');
 $displayName = $user['Name'];
+$profileImageUrl = student_profile_image_url($user);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,8 +48,12 @@ $displayName = $user['Name'];
             <div class="profile-area">
                 <a href="<?= e(url('logout.php')) ?>" style="color: #E63946; font-size: 14px; font-weight: 600; margin-right: 20px; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <span style="color: var(--accent-gold); font-size: 15px; font-weight: 600; font-family: 'Playfair Display', serif;"><?= e($displayName) ?></span>
-                <div class="user-avatar" style="background: linear-gradient(135deg, var(--accent-gold), #AA8715); width: 45px; height: 45px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: #fff; font-weight: bold; margin-left: 12px; font-family: 'Playfair Display', serif; font-size: 20px; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3);">
-                    <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                <div class="user-avatar" style="background: linear-gradient(135deg, var(--accent-gold), #AA8715); width: 45px; height: 45px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: #fff; font-weight: bold; margin-left: 12px; font-family: 'Playfair Display', serif; font-size: 20px; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3); overflow:hidden;">
+                    <?php if ($profileImageUrl): ?>
+                        <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                    <?php else: ?>
+                        <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

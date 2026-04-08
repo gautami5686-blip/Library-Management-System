@@ -7,11 +7,18 @@ require_once __DIR__ . '/../app/bootstrap.php';
 $user = require_user();
 $activePage = 'dashboard';
 $statusFilter = trim((string) ($_GET['status'] ?? 'all'));
+$dashboardPath = 'user_dashboard.php' . ($statusFilter !== 'all' ? '?status=' . urlencode($statusFilter) : '');
 
 if (is_post() && isset($_POST['renew_issue'])) {
     $result = renew_issue((int) ($_POST['issue_id'] ?? 0), (int) $user['id']);
     flash($result['success'] ? 'success' : 'error', $result['message']);
-    redirect('user_dashboard.php' . ($statusFilter !== 'all' ? '?status=' . urlencode($statusFilter) : ''));
+    redirect($dashboardPath);
+}
+
+if (is_post() && isset($_POST['update_profile'])) {
+    $result = update_student_profile((int) $user['id'], $_POST, $_FILES);
+    flash($result['success'] ? 'success' : 'error', $result['message']);
+    redirect($dashboardPath . '#profile-section');
 }
 
 $activeCount = (int) db_value("SELECT COUNT(*) FROM issued_books WHERE student_id = ? AND status = 'active'", [(int) $user['id']], 'i');
@@ -36,7 +43,9 @@ $books = db_all(
 );
 $successMessage = flash('success');
 $errorMessage = flash('error');
+$departments = departments_all();
 $displayName = $user['Name'];
+$profileImageUrl = student_profile_image_url($user);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -63,17 +72,29 @@ $displayName = $user['Name'];
             <div class="profile-area">
                 <a href="<?= e(url('logout.php')) ?>" style="color: #E63946; font-size: 14px; font-weight: 500; margin-right: 15px; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <span style="color: var(--accent-gold); font-size: 14px; font-weight: 500;"><?= e($displayName) ?></span>
-                <div class="user-avatar" style="background: rgba(212,175,55,0.2); width: 40px; height: 40px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: var(--accent-gold); font-weight: bold; margin-left: 10px;">
-                    <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                <div class="user-avatar" style="background: rgba(212,175,55,0.2); width: 40px; height: 40px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: var(--accent-gold); font-weight: bold; margin-left: 10px; overflow:hidden;">
+                    <?php if ($profileImageUrl): ?>
+                        <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                    <?php else: ?>
+                        <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
 
         <div class="page-header">
             <h1>My Dashboard</h1>
-            <a href="<?= e(url('catalog.php')) ?>" class="btn-gold">
-                <i class="fas fa-book-open"></i> Explore Books
-            </a>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <a href="<?= e(url('user_profile.php')) ?>" class="profile-link-btn">
+                    <i class="fas fa-id-card"></i> Full Profile Page
+                </a>
+                <a href="#profile-section" class="btn-gold">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </a>
+                <a href="<?= e(url('catalog.php')) ?>" class="btn-gold">
+                    <i class="fas fa-book-open"></i> Explore Books
+                </a>
+            </div>
         </div>
 
         <?php if ($successMessage || $errorMessage): ?>
@@ -112,6 +133,112 @@ $displayName = $user['Name'];
                 </div>
             </div>
         </div>
+
+        <section id="profile-section" class="profile-section-grid">
+            <div class="stat-card profile-summary-card">
+                <div class="profile-summary-avatar">
+                    <?php if ($profileImageUrl): ?>
+                        <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                    <?php else: ?>
+                        <?= e(strtoupper(substr($displayName, 0, 1))) ?>
+                    <?php endif; ?>
+                </div>
+                <h3 class="profile-summary-title"><?= e($user['Name']) ?></h3>
+                <p class="profile-summary-subtitle">
+                    <i class="fas fa-envelope" style="color: var(--accent-gold); margin-right: 6px;"></i><?= e($user['Email_Address']) ?>
+                </p>
+                <div style="margin-bottom: 24px;">
+                    <span class="status-badge" style="display:inline-block; padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: 20px; background: rgba(197,160,89,0.1); color: var(--accent-gold); border: 1px solid rgba(197,160,89,0.2);">Profile Active</span>
+                </div>
+                <div class="profile-summary-meta">
+                    <div class="profile-summary-meta-item">
+                        <span>Department</span>
+                        <strong><?= e((string) ($user['Department'] ?? 'Not set')) ?></strong>
+                    </div>
+                    <div class="profile-summary-meta-item">
+                        <span>Course</span>
+                        <strong><?= e($user['Course']) ?></strong>
+                    </div>
+                    <div class="profile-summary-meta-item">
+                        <span>Semester</span>
+                        <strong><?= e($user['Semester']) ?></strong>
+                    </div>
+                    <div class="profile-summary-meta-item">
+                        <span>Borrow Limit</span>
+                        <strong><?= e((string) $user['No_Books_issued']) ?> Books</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container profile-form-card">
+                <h3 class="profile-form-title"><i class="fas fa-user-cog" style="color: var(--accent-gold); margin-right: 10px;"></i>Edit Profile</h3>
+                <p class="profile-form-text">Update your personal and academic details directly from the dashboard.</p>
+
+                <form method="POST" action="<?= e(url($dashboardPath . '#profile-section')) ?>" enctype="multipart/form-data">
+                    <div class="profile-photo-editor">
+                        <div class="profile-photo-frame">
+                            <?php if ($profileImageUrl): ?>
+                                <img src="<?= e($profileImageUrl) ?>" alt="<?= e($displayName) ?>" class="avatar-image">
+                            <?php else: ?>
+                                <div class="profile-photo-placeholder"><?= e(strtoupper(substr($displayName, 0, 1))) ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="profile-upload-controls">
+                            <div class="profile-field">
+                                <label for="dashboard-profile-image">Profile Image</label>
+                                <input id="dashboard-profile-image" type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                            </div>
+                            <p class="profile-upload-hint">Upload JPG, PNG, or WEBP image. Maximum file size: 2 MB.</p>
+                            <?php if ($profileImageUrl): ?>
+                                <label class="profile-checkbox">
+                                    <input type="checkbox" name="remove_profile_image" value="1">
+                                    Remove current photo
+                                </label>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="profile-form-grid">
+                        <div class="profile-field">
+                            <label for="dashboard-name">Full Name</label>
+                            <input id="dashboard-name" type="text" name="name" value="<?= e($user['Name']) ?>" required>
+                        </div>
+                        <div class="profile-field">
+                            <label for="dashboard-email">Email Address</label>
+                            <input id="dashboard-email" type="email" value="<?= e($user['Email_Address']) ?>" disabled>
+                        </div>
+                        <div class="profile-field">
+                            <label for="dashboard-department">Department</label>
+                            <select id="dashboard-department" name="department_id" required>
+                                <option value="" disabled>Select Department</option>
+                                <?php foreach ($departments as $department): ?>
+                                    <option value="<?= e((string) $department['id']) ?>" <?= selected((string) $department['id'], (string) ($user['department_id'] ?? '')) ?>>
+                                        <?= e($department['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="profile-field">
+                            <label for="dashboard-course">Course</label>
+                            <input id="dashboard-course" type="text" name="course" value="<?= e($user['Course']) ?>" required>
+                        </div>
+                        <div class="profile-field">
+                            <label for="dashboard-semester">Semester</label>
+                            <input id="dashboard-semester" type="text" name="semester" value="<?= e($user['Semester']) ?>" required>
+                        </div>
+                        <div class="profile-field">
+                            <label for="dashboard-limit">Maximum Allowed Books</label>
+                            <input id="dashboard-limit" type="text" value="<?= e((string) $user['No_Books_issued']) ?> Books" disabled>
+                        </div>
+                    </div>
+
+                    <div class="profile-form-actions">
+                        <a href="<?= e(url('user_profile.php')) ?>" class="profile-link-btn">Open Full Profile</a>
+                        <button type="submit" name="update_profile" class="btn-gold"><i class="fas fa-save"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
         <div class="table-container">
             <div class="table-controls">

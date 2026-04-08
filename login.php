@@ -37,7 +37,7 @@ $successMessage = flash('success');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Login | LMS</title>
+    <title>Student Login | LMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= e(url('assets/css/login.css')) ?>">
 </head>
@@ -70,7 +70,7 @@ $successMessage = flash('success');
                 <label>
                     <input type="checkbox" name="remember" <?= checked(old('remember') !== '') ?>> Remember me
                 </label>
-                <a href="<?= e(url('signup.php')) ?>">Create account</a>
+                <a href="<?= e(url('forgot-password.php')) ?>">Forgot Password?</a>
             </div>
 
             <button type="submit" name="login">Sign In</button>

@@ -32,6 +32,7 @@ function ensure_schema(mysqli $db): void
             password VARCHAR(255) NOT NULL,
             No_Books_issued INT NOT NULL DEFAULT 3,
             Department VARCHAR(120) NOT NULL,
+            profile_image VARCHAR(255) NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )",
@@ -114,6 +115,8 @@ function ensure_schema(mysqli $db): void
     }
 
     ensure_department_relations($db);
+    ensure_student_profile_schema($db);
+    ensure_remember_token_schema($db);
     cleanup_legacy_book_columns($db);
     seed_default_data();
     $ready = true;
@@ -247,6 +250,63 @@ function ensure_department_relations(mysqli $db): void
         $db->query(
             'ALTER TABLE books_table ADD CONSTRAINT fk_book_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL'
         );
+    }
+}
+
+function ensure_student_profile_schema(mysqli $db): void
+{
+    if (!schema_column_exists('student_table', 'profile_image')) {
+        $db->query('ALTER TABLE student_table ADD COLUMN profile_image VARCHAR(255) NULL AFTER Department');
+    }
+}
+
+function ensure_remember_token_schema(mysqli $db): void
+{
+    $missingUserType = !schema_column_exists('remember_tokens', 'user_type');
+    $missingUserId = !schema_column_exists('remember_tokens', 'user_id');
+    $missingSelector = !schema_column_exists('remember_tokens', 'selector');
+    $missingTokenHash = !schema_column_exists('remember_tokens', 'token_hash');
+    $missingExpiresAt = !schema_column_exists('remember_tokens', 'expires_at');
+
+    if ($missingUserType || $missingUserId || $missingSelector || $missingTokenHash || $missingExpiresAt) {
+        // Legacy remember-me tokens cannot be safely mapped to the new schema, so invalidate them once.
+        $db->query('DELETE FROM remember_tokens');
+    }
+
+    if ($missingUserType) {
+        $db->query("ALTER TABLE remember_tokens ADD COLUMN user_type ENUM('student', 'admin') NOT NULL DEFAULT 'student' AFTER id");
+    }
+
+    if ($missingUserId) {
+        $db->query('ALTER TABLE remember_tokens ADD COLUMN user_id INT NOT NULL AFTER user_type');
+    }
+
+    if ($missingSelector) {
+        $db->query('ALTER TABLE remember_tokens ADD COLUMN selector CHAR(32) NOT NULL AFTER user_id');
+    }
+
+    if ($missingTokenHash) {
+        $db->query('ALTER TABLE remember_tokens ADD COLUMN token_hash CHAR(64) NOT NULL AFTER selector');
+    }
+
+    if ($missingExpiresAt) {
+        $db->query('ALTER TABLE remember_tokens ADD COLUMN expires_at DATETIME NOT NULL AFTER token_hash');
+    }
+
+    if (!schema_column_exists('remember_tokens', 'last_used_at')) {
+        $db->query('ALTER TABLE remember_tokens ADD COLUMN last_used_at DATETIME NULL AFTER expires_at');
+    }
+
+    if (!schema_column_exists('remember_tokens', 'created_at')) {
+        $db->query('ALTER TABLE remember_tokens ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER last_used_at');
+    }
+
+    if (!schema_index_exists('remember_tokens', 'idx_remember_user')) {
+        $db->query('ALTER TABLE remember_tokens ADD INDEX idx_remember_user (user_type, user_id)');
+    }
+
+    if (!schema_index_exists('remember_tokens', 'idx_remember_expiry')) {
+        $db->query('ALTER TABLE remember_tokens ADD INDEX idx_remember_expiry (expires_at)');
     }
 }
 

@@ -64,11 +64,10 @@ $successMessage = flash('success');
             <div class="input-group">
                 <input type="password" name="password" placeholder="Password" required>
             </div>
-            <div class="options" style="margin-top: -6px;">
+            <div class="options" style="margin-top: -6px; justify-content: flex-start;">
                 <label>
                     <input type="checkbox" name="remember" <?= checked(old('remember') !== '') ?>> Remember me
                 </label>
-                <a href="<?= e(url('admin/forgot-password.php')) ?>">Forgot Password?</a>
             </div>
             <button type="submit" name="login">Sign In</button>
         </form>

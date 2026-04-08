@@ -11,7 +11,7 @@ function database_config(): array
     return [
         'host' => getenv('LMS_DB_HOST') ?: 'localhost',
         'username' => getenv('LMS_DB_USER') ?: 'root',
-        'password' => getenv('LMS_DB_PASSWORD') ?: 'Sakshi@1o1',
+        'password' => getenv('LMS_DB_PASSWORD') ?: 'M4a1..,.,.,@',
         'database' => getenv('LMS_DB_NAME') ?: 'library',
         'port' => (int) (getenv('LMS_DB_PORT') ?: 3306),
     ];
